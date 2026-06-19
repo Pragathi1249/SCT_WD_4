@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DoDesk ⚡ — Your Ultimate Workspace Universe</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Playfair+Display:wght@700;800&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    /* ==========================================================================
+       1. GLOBAL RESET & DESIGN TOKENS
+       ========================================================================== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      /* Palette Hybridization - Shifted base from cream/warm to solid sweet pink layers */
+      --cream:       #fff0f5; /* Light Lavender Pink Base Background */
+      --warm:        #ffe4e1; /* Misty Rose Layer Accents */
+      --ink:         #2c1a0e;
+      --ink2:        #6b4f3a;
+      --ink3:        #a8886c;
+      --ink4:        #d4b896;
+      --white:       #ffffff;
+      
+      /* Vibrant Accent Tokens */
+      --sun:         #ffb7ce; /* Light Pink Primary Highlight Accent */
+      --coral:       #ff6b6b;
+      --mint:        #4ecdc4;
+      --sky:         #74b9ff;
+      --lilac:       #a29bfe;
+      --peach:       #fd9644;
+      --rose:        #fd79a8;
+      --sage:        #55efc4;
+
+      --high:        #ff6b6b;
+      --high-bg:     #ffebee;
+      --med:         #fd9644;
+      --med-bg:      #fff3e0;
+      --low:         #2e7d32;
+      --low-bg:      #e8f5e9;
+
+      /* Shadow & Structural Tokens */
+      --shadow-sm:   0 2px 8px rgba(44,26,14,0.06);
+      --shadow:      0 4px 20px rgba(44,26,14,0.10);
+      --shadow-lg:   0 12px 40px rgba(44,26,14,0.15);
+      --shadow-card: 3px 4px 0px var(--ink);
+
+      --r:           16px;
+      --rs:          10px;
+      --rx:          8px;
+      --t:           0.22s cubic-bezier(0.4, 0, 0.2, 1);
+      
+      /* Typography */
+      --body:        'Nunito', sans-serif;
+      --display:     'Playfair Display', serif;
+    }
+
+    /* Sticky Note Background Cycles */
+    .note-colors {
+      --nc0: #ffe3ec; --nc1: #ffd6e0; --nc2: #c8f7c5; 
+      --nc3: #cce5ff; --nc4: #e8d5f5; --nc5: #ffe4cc; --nc6: #d4f1f4;
+    }
+
+    body {
+      font-family: var(--body);
+      background-color: var(--cream);
+      background-image:
+        radial-gradient(circle at 15% 20%, rgba(255,107,107,0.12) 0%, transparent 40%),
+        radial-gradient(circle at 85% 80%, rgba(253,121,168,0.15) 0%, transparent 40%);
+      color: var(--ink);
+      min-height: 100vh;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Blueprint/Paper Subtle Texture */
+    body::before {
+      content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='.03'/%3E%3C/svg%3E");
+      opacity: 0.7;
+    }
+
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: var(--warm); }
+    ::-webkit-scrollbar-thumb { background: var(--ink4); border-radius: 99px; }
+
+    /* ==========================================================================
+       2. TOPBAR & NAVIGATION
+       ========================================================================== */
+    .topbar {
+      background: var(--white);
+      border-bottom: 2.5px solid var(--ink);
+      position: sticky; top: 0; z-index: 50;
+      box-shadow: var(--shadow-sm);
+    }
+    .topbar-inner {
+      max-width: 1200px; margin: 0 auto; padding: 0 24px;
+      display: flex; align-items: center; justify-content: space-between;
+      height: 70px; gap: 20px;
+    }
+    .logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+    .logo-icon {
+      width: 44px; height: 44px; background: var(--sun);
+      border: 2.5px solid var(--ink); border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; box-shadow: 3px 3px 0 var(--ink);
+      animation: wiggle 4s ease-in-out infinite;
+    }
+    @keyframes wiggle { 0%, 100% { transform: rotate(-3deg); } 50% { transform: rotate(3deg); } }
+    .logo-name {
+      font-family: var(--display); font-size: 24px; font-weight: 800; color: var(--ink);
+    }
+    .logo-name span { color: var(--rose); font-family: var(--body); font-weight: 900; font-size: 20px; }
+
+    .nav-links { display: flex; align-items: center; gap: 8px; }
+    .nav-link {
+      padding: 8px 18px; border-radius: 50px; font-size: 14px; font-weight: 800;
+      color: var(--ink2); cursor: pointer; border: 2px solid transparent; background: none;
+      transition: var(--t); font-family: var(--body);
+    }
+    .nav-link:hover { background: var(--warm); color: var(--ink); border-color: var(--ink4); }
+    .nav-link.active {
+      background: var(--ink); color: var(--white); border-color: var(--ink);
+      box-shadow: 2px 2px 0px var(--ink4);
+    }
+
+    .search-wrap { flex: 1; max-width: 280px; position: relative; }
+    .search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 14px; pointer-events: none; }
+    .search-input {
+      width: 100%; padding: 9px 14px 9px 38px;
+      border: 2px solid var(--ink4); border-radius: 50px;
+      background: var(--warm); font-family: var(--body); font-size: 14px;
+      color: var(--ink); outline: none; transition: var(--t);
+    }
+    .search-input:focus { border-color: var(--ink); background: white; }
+
+    #confettiCanvas { position: fixed; inset: 0; pointer-events: none; z-index: 9999; }
+    
+    .toast {
+      position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(12px);
+      background: var(--ink); color: white; padding: 12px 26px; border-radius: 50px;
+      font-size: 14px; font-weight: 700; z-index: 9998; opacity: 0;
+      transition: all 0.25s ease; box-shadow: var(--shadow-lg); border: 2px solid var(--ink4);
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* ==========================================================================
+       3. APP HERO DASHBOARD AREA
+       ========================================================================== */
+    .app { max-width: 1200px; margin: 0 auto; padding: 24px 24px 100px; position: relative; z-index: 1; }
+
+    .dashboard-header {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px;
+    }
+    @media (max-width: 768px) { .dashboard-header { grid-template-columns: 1fr; } }
+
+    .mood-card {
+      background: var(--white); border: 2.5px solid var(--ink); border-radius: var(--r);
+      padding: 20px; box-shadow: var(--shadow-card); display: flex; flex-direction: column; justify-content: space-between;
+    }
+    .mood-msg { font-size: 1.2rem; font-weight: 700; color: var(--ink2); line-height: 1.4; font-style: normal; }
+    .mood-date { font-size: 12px; font-weight: 800; color: var(--ink3); text-transform: uppercase; letter-spacing: 1px; margin-top: 10px; }
+
+    .quote-card {
+      background: var(--white); border: 2.5px solid var(--ink); border-radius: var(--r);
+      padding: 20px; box-shadow: var(--shadow-card); position: relative; overflow: hidden;
+      display: flex; gap: 14px; align-items: flex-start;
+    }
+    .quote-icon { font-size: 2rem; line-height: 1; animation: spinBounce 6s ease-in-out infinite; }
+    @keyframes spinBounce { 0%,100% { transform: rotate(-6deg) scale(1); } 50% { transform: rotate(6deg) scale(1.1); } }
+    .quote-text { font-size: 1.05rem; font-weight: 600; color: var(--ink); line-height: 1.4; font-style: normal; }
+    .quote-author { font-size: 11px; font-weight: 800; color: var(--ink3); text-transform: uppercase; margin-top: 4px; letter-spacing: 0.5px; }
+    .quote-next {
+      position: absolute; bottom: 10px; right: 12px; font-size: 11px; font-weight: 700;
+      color: var(--ink2); background: var(--warm); border: 1.5px solid var(--ink4);
+      border-radius: 50px; padding: 2px 10px; cursor: pointer; transition: var(--t);
+    }
+    .quote-next:hover { background: var(--sun); border-color: var(--ink); color: var(--ink); }
+
+    /* Stats & Progress Layout Elements */
+    .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+    @media (max-width: 520px) { .stats-row { grid-template-columns: repeat(2, 1fr); } }
+    
+    .stat {
+      background: white; border: 2.5px solid var(--ink); border-radius: var(--r);
+      padding: 14px; text-align: center; box-shadow: 3px 3px 0 var(--ink); transition: transform .15s;
+    }
+    .stat:hover { transform: translateY(-2px); box-shadow: 5px 5px 0 var(--ink); }
+    .stat-n { font-size: 2rem; font-weight: 800; line-height: 1; }
+    .stat.s1 .stat-n { color: var(--lilac); }
+    .stat.s2 .stat-n { color: var(--mint); }
+    .stat.s3 .stat-n { color: var(--peach); }
+    .stat.s4 .stat-n { color: var(--coral); }
+    .stat-lbl { font-size: 11px; font-weight: 800; color: var(--ink3); text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; }
+
+    .progress-wrap {
+      background: var(--white); border: 2.5px solid var(--ink);
+      border-radius: var(--r); padding: 16px 20px; margin-bottom: 24px; box-shadow: var(--shadow-card);
+    }
+    .progress-hdr { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .prog-label { font-size: 1.1rem; font-weight: 800; color: var(--ink); }
+    .progress-pct { font-size: 13px; font-weight: 800; color: var(--ink); background: var(--sun); padding: 2px 8px; border-radius: 50px; border: 1.5px solid var(--ink); }
+    .progress-bg { height: 16px; background: var(--warm); border: 2px solid var(--ink); border-radius: 50px; overflow: hidden; }
+    .progress-fill {
+      height: 100%; background: repeating-linear-gradient(90deg, var(--sun) 0 20px, var(--peach) 20px 40px);
+      border-radius: 50px; width: 0%; transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* ==========================================================================
+       4. MAIN SYSTEM PANELS & GRID CONTROL
+       ========================================================================== */
+    .content-grid { display: grid; grid-template-columns: 240px 1fr; gap: 24px; align-items: start; }
+    @media (max-width: 768px) { .content-grid { grid-template-columns: 1fr; } }
+
+    .sidebar {
+      background: var(--white); border: 2.5px solid var(--ink);
+      border-radius: var(--r); padding: 18px; box-shadow: var(--shadow-card);
+      position: sticky; top: 94px;
+    }
+    .sidebar-section { margin-bottom: 20px; }
+    .sidebar-section:last-child { margin-bottom: 0; }
+    .sidebar-title { font-size: 11px; font-weight: 800; color: var(--ink3); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
+    
+    .sidebar-item {
+      display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: var(--rx);
+      font-size: 14px; font-weight: 700; color: var(--ink2); cursor: pointer; border: none;
+      background: none; width: 100%; text-align: left; transition: var(--t); font-family: var(--body);
+    }
+    .sidebar-item:hover { background: var(--warm); color: var(--ink); }
+    .sidebar-item.active { background: var(--ink); color: white; }
+
+    .filter-label { font-size: 11px; font-weight: 700; color: var(--ink3); margin-top: 8px; margin-bottom: 4px; }
+    .filter-sel {
+      width: 100%; padding: 8px 12px; border: 2px solid var(--ink4); border-radius: var(--rx);
+      background: var(--warm); font-family: var(--body); font-size: 13px; color: var(--ink);
+      outline: none; transition: var(--t); appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='7' viewBox='0 0 10 7'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%232c1a0e' stroke-width='2' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 12px center;
+    }
+    .filter-sel:focus { border-color: var(--ink); background-color: white; }
+
+    /* Category Strip Component */
+    .cat-strip { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
+    .cat-tab {
+      font-size: 14px; font-weight: 700; padding: 6px 16px;
+      border-radius: 50px; border: 2px solid var(--ink4); background: white; color: var(--ink2);
+      cursor: pointer; transition: var(--t);
+    }
+    .cat-tab:hover { border-color: var(--ink); color: var(--ink); }
+    .cat-tab.on { background: var(--ink); color: white; border-color: var(--ink); box-shadow: 2px 2px 0 var(--ink4); }
+    .cat-tab-add {
+      font-size: 13px; font-weight: 800; padding: 6px 14px;
+      border-radius: 50px; border: 2px dashed var(--ink4); background: transparent; color: var(--ink3);
+      cursor: pointer; transition: var(--t);
+    }
+    .cat-tab-add:hover { border-color: var(--coral); color: var(--coral); }
+
+    .panel-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+    .panel-title { font-family: var(--display); font-size: 24px; font-weight: 800; color: var(--ink); }
+    .panel-subtitle { font-size: 13px; color: var(--ink3); font-weight: 700; }
+
+    /* ==========================================================================
+       5. INTERACTIVE TASK CARDS & NOTE COLOR HYBRIDIZATION
+       ========================================================================== */
+    .task-list { display: flex; flex-direction: column; gap: 12px; }
+
+    .task-card {
+      border-radius: var(--r); border: 2.5px solid var(--ink); padding: 16px;
+      display: flex; gap: 14px; align-items: flex-start; box-shadow: var(--shadow-card);
+      transition: transform var(--t), box-shadow var(--t), border-color var(--t);
+      position: relative; animation: cardIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    }
+    @keyframes cardIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* Dynamic Assignment of background loops via script using target tokens */
+    .task-card:nth-child(7n+1) { background: var(--nc0); }
+    .task-card:nth-child(7n+2) { background: var(--nc1); }
+    .task-card:nth-child(7n+3) { background: var(--nc2); }
+    .task-card:nth-child(7n+4) { background: var(--nc3); }
+    .task-card:nth-child(7n+5) { background: var(--nc4); }
+    .task-child:nth-child(7n+6) { background: var(--nc5); }
+    .task-card:nth-child(7n+0) { background: var(--nc6); }
+
+    .task-card:hover { transform: translate(-2px, -2px); box-shadow: 5px 5px 0 var(--ink); }
+    .task-card.dragging { opacity: 0.35; transform: rotate(0deg) scale(0.97); }
+    .task-card.drag-over { outline: 3px dashed var(--coral); outline-offset: 4px; }
+    .task-card.completed { opacity: 0.55; filter: saturate(0.5); }
+    .task-card.completed .task-title { text-decoration: line-through; text-decoration-thickness: 2px; color: var(--ink3); }
+
+    /* Left side decorative indicator strip */
+    .task-card::before {
+      content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 6px; border-radius: var(--r) 0 0 var(--r);
+    }
+    .task-card[data-p="High"]::before { background: var(--coral); }
+    .task-card[data-p="Medium"]::before { background: var(--sun); }
+    .task-card[data-p="Low"]::before { background: var(--sage); }
+
+    .task-card.is-overdue { border-color: var(--coral); box-shadow: 4px 4px 0 var(--coral); }
+
+    .task-check {
+      width: 24px; height: 24px; border-radius: 6px; border: 2.5px solid var(--ink);
+      flex-shrink: 0; cursor: pointer; display: flex; align-items: center; justify-content: center;
+      margin-top: 2px; transition: var(--t); background: white; font-weight: 900; font-size: 13px;
+    }
+    .task-check:hover { background: var(--sun); transform: scale(1.1); }
+    .task-card.completed .task-check { background: var(--mint); color: var(--ink); }
+
+    .task-body { flex: 1; min-width: 0; }
+    .task-title { font-size: 1.15rem; font-weight: 700; color: var(--ink); line-height: 1.3; margin-bottom: 4px; }
+    .task-desc { font-size: 13px; color: var(--ink2); line-height: 1.5; margin-bottom: 8px; word-break: break-word; }
+    .task-meta { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+
+    .badge { display: inline-flex; align-items: center; padding: 2px 10px; border-radius: 50px; font-size: 11px; font-weight: 800; text-transform: uppercase; border: 1.5px solid rgba(44,26,14,0.15); }
+    .badge-high { background: rgba(255,107,107,0.18); color: #c0392b; }
+    .badge-medium { background: rgba(253,203,110,0.3); color: #b7770d; }
+    .badge-low { background: rgba(85,239,196,0.25); color: #00864e; }
+    .badge-date { font-size: 13px; font-weight: 700; background: rgba(255,255,255,0.6); color: var(--ink); }
+    .badge-overdue { background: rgba(255,107,107,0.2); color: #c0392b; animation: pulseRed 1.5s infinite; }
+    @keyframes pulseRed { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+    .task-actions { display: flex; gap: 4px; flex-shrink: 0; align-items: center; }
+    .btn-ico {
+      width: 32px; height: 32px; border-radius: 8px; border: 2px solid var(--ink4);
+      background: rgba(255,255,255,0.6); cursor: pointer; font-size: 13px;
+      display: flex; align-items: center; justify-content: center; transition: var(--t);
+    }
+    .btn-ico:hover { background: white; border-color: var(--ink); transform: scale(1.05); }
+    .btn-ico.del:hover { background: var(--coral); border-color: var(--coral); color: white; }
+    .drag-handle { color: var(--ink4); font-size: 16px; margin-left: 4px; cursor: grab; user-select: none; }
+
+    .empty-state { text-align: center; padding: 50px 20px; background: white; border: 2.5px dashed var(--ink4); border-radius: 24px; }
+    .empty-emoji { font-size: 3.5rem; margin-bottom: 8px; display: block; animation: floatDoodle 3s ease-in-out infinite; }
+    @keyframes floatDoodle { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+    .empty-state h3 { font-size: 1.3rem; font-weight: 700; color: var(--ink); margin-bottom: 4px; }
+    .empty-state p { color: var(--ink3); font-size: 14px; }
+
+    .add-task-btn {
+      display: flex; align-items: center; gap: 10px; padding: 12px 16px;
+      background: var(--white); border: 2px dashed var(--ink4); border-radius: var(--r);
+      cursor: pointer; width: 100%; font-family: var(--body); font-size: 14px; font-weight: 700;
+      color: var(--ink3); transition: var(--t); margin-top: 12px;
+    }
+    .add-task-btn:hover { border-color: var(--ink); color: var(--ink); background: var(--warm); }
+    .add-task-btn .plus-icon {
+      width: 24px; height: 24px; border-radius: 6px; background: var(--warm); border: 1.5px solid var(--ink4);
+      display: flex; align-items: center; justify-content: center; font-size: 14px; color: var(--ink);
+    }
+
+    /* ==========================================================================
+       6. CALENDAR VIEW INTERFACE
+       ========================================================================== */
+    .calendar { background: var(--white); border: 2.5px solid var(--ink); border-radius: 24px; padding: 24px; box-shadow: var(--shadow-card); }
+    .cal-hdr { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+    .cal-month-lbl { font-size: 1.4rem; font-weight: 800; color: var(--ink); }
+    .cal-nav {
+      width: 36px; height: 36px; border-radius: 50%; border: 2.5px solid var(--ink);
+      background: var(--sun); color: var(--ink); font-size: 1.2rem; font-weight: 700;
+      cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 2px 2px 0 var(--ink); transition: var(--t);
+    }
+    .cal-nav:hover { transform: translate(-1px, -1px); box-shadow: 3px 3px 0 var(--ink); }
+    .cal-nav:active { transform: translate(1px, 1px); box-shadow: 0 0 0 var(--ink); }
+    
+    .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+    .cal-day-hdr { text-align: center; font-size: 12px; font-weight: 800; color: var(--ink3); padding: 6px 0; font-transform: uppercase; }
+    .cal-cell {
+      aspect-ratio: 1; border-radius: 12px; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; cursor: pointer;
+      font-size: 1rem; font-weight: 700; color: var(--ink); transition: var(--t); position: relative; border: 2px solid transparent;
+    }
+    .cal-cell:hover:not(.gray) { background: var(--warm); border-color: var(--ink4); }
+    .cal-cell.today { background: var(--sun); border: 2px solid var(--ink); box-shadow: 2px 2px 0 var(--ink); }
+    .cal-cell.sel { background: var(--ink); color: white; }
+    .cal-cell.gray { color: var(--ink4); cursor: not-allowed; }
+    .cal-cell.has::after { content: ''; position: absolute; bottom: 5px; width: 6px; height: 6px; border-radius: 50%; background: var(--coral); }
+    .cal-cell.sel.has::after { background: var(--sun); }
+
+    .cal-day-panel { margin-top: 24px; padding-top: 20px; border-top: 2px dashed var(--ink4); }
+    .cal-day-panel h3 { font-size: 1.2rem; font-weight: 800; color: var(--ink); margin-bottom: 12px; }
+
+    /* ==========================================================================
+       7. FORM MODAL OVERLAYS & CONTROLS
+       ========================================================================== */
+    .overlay {
+      position: fixed; inset: 0; background: rgba(44, 26, 14, 0.45); backdrop-filter: blur(5px);
+      z-index: 1000; display: none; align-items: center; justify-content: center; padding: 16px;
+    }
+    .overlay.on { display: flex; animation: fadeIn 0.2s ease forwards; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    .modal {
+      background: var(--cream); border: 2.5px solid var(--ink); border-radius: 24px;
+      padding: 28px; width: 100%; max-width: 520px; max-height: 90vh; overflow-y: auto;
+      box-shadow: 6px 8px 0 var(--ink); animation: popIn 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    @keyframes popIn { from { transform: scale(0.9) opacity: 0; } to { transform: scale(1) opacity: 1; } }
+
+    .modal-title { font-size: 1.4rem; font-weight: 800; color: var(--ink); margin-bottom: 18px; }
+    .fgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .fg { display: flex; flex-direction: column; gap: 4px; }
+    .fg.full { grid-column: 1 / -1; }
+    .fg label { font-size: 11px; font-weight: 800; color: var(--ink3); text-transform: uppercase; letter-spacing: 0.5px; }
+    
+    .fg input, .fg textarea, .fg select {
+      padding: 10px 14px; border-radius: 10px; border: 2px solid var(--ink4);
+      font-family: var(--body); font-size: 14px; color: var(--ink); background: white; outline: none; transition: var(--t);
+    }
+    .fg input:focus, .fg textarea:focus, .fg select:focus { border-color: var(--ink); }
+    .fg textarea { resize: vertical; min-height: 80px; }
+    
+    .modal-foot { display: flex; justify-content: flex-end; gap: 10px; margin-top: 22px; }
+
+    /* Button Tokens */
+    .btn {
+      font-family: var(--body); font-weight: 800; font-size: 13px; border-radius: 50px;
+      padding: 10px 20px; cursor: pointer; border: 2.5px solid var(--ink); transition: all 0.15s;
+      display: inline-flex; align-items: center; gap: 6px; box-shadow: 2px 2px 0 var(--ink);
+    }
+    .btn:hover { transform: translate(-1px, -1px); box-shadow: 4px 4px 0 var(--ink); }
+    .btn:active { transform: translate(1px, 1px); box-shadow: 0px 0px 0 var(--ink); }
+    .btn-primary { background: var(--sun); color: var(--ink); }
+    .btn-secondary { background: white; color: var(--ink); }
+
+    .fab {
+      position: fixed; bottom: 24px; right: 24px; background: var(--sun); color: var(--ink);
+      width: 56px; height: 56px; border-radius: 50%; border: 2.5px solid var(--ink); font-size: 24px;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      box-shadow: 4px 4px 0 var(--ink); z-index: 99; transition: var(--t); font-weight: 800;
+    }
+    .fab:hover { transform: scale(1.05); box-shadow: 5px 5px 0 var(--ink); }
+  </style>
+</head>
+<body class="note-colors">
+
+  <canvas id="confettiCanvas"></canvas>
+  <div class="toast" id="toast"></div>
+
+  <!-- TOPBAR HEADER NAVIGATION -->
+  <nav class="topbar">
+    <div class="topbar-inner">
+      <a class="logo" href="#">
+        <div class="logo-icon">⚡</div>
+        <div class="logo-name">DoDesk<span>.io</span></div>
+      </a>
+      <div class="nav-links">
+        <button class="nav-link active" id="tabList" onclick="switchView('list')">Workspace</button>
+        <button class="nav-link" id="tabCal" onclick="switchView('cal')">Calendar Plan</button>
+      </div>
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input type="text" class="search-input" id="searchIn" placeholder="Search parameters..." oninput="render()" autocomplete="off" />
+      </div>
+    </div>
+  </nav>
+
+  <div class="app">
+    <!-- DASHBOARD SMART MOTIVATION BLOCKS -->
+    <div class="dashboard-header">
+      <div class="mood-card">
+        <div class="mood-msg" id="moodMsg">🌱 Gathering your tasks...</div>
+        <div class="mood-date" id="moodDate"></div>
+      </div>
+      <div class="quote-card" id="quoteCard">
+        <div class="quote-icon" id="quoteIcon">💡</div>
+        <div class="quote-body">
+          <div class="quote-text" id="quoteText">Loading your productivity engine spur...</div>
+          <div class="quote-author" id="quoteAuthor">— DoDesk Motivation</div>
+        </div>
+        <button class="quote-next" onclick="nextQuote()">Next ✨</button>
+      </div>
+    </div>
+
+    <!-- STATS COUNTER BLOCKS -->
+    <div class="stats-row">
+      <div class="stat s1"><div class="stat-n" id="sTotal">0</div><div class="stat-lbl">Total</div></div>
+      <div class="stat s2"><div class="stat-n" id="sDone">0</div><div class="stat-lbl">Done</div></div>
+      <div class="stat s3"><div class="stat-n" id="sPend">0</div><div class="stat-lbl">Pending</div></div>
+      <div class="stat s4"><div class="stat-n" id="sOver">0</div><div class="stat-lbl">Overdue</div></div>
+    </div>
+
+    <!-- PROGRESS CARD -->
+    <div class="progress-wrap">
+      <div class="progress-hdr">
+        <span class="prog-label">🚀 Workspace Velocity Progress</span>
+        <span class="progress-pct" id="progPct">0%</span>
+      </div>
+      <div class="progress-bg">
+        <div class="progress-fill" id="progFill"></div>
+      </div>
+    </div>
+
+    <!-- MAIN TWO-COLUMN WORK ENVIRONMENT -->
+    <div class="content-grid">
+      <aside class="sidebar">
+        <div class="sidebar-section">
+          <div class="sidebar-title">View Mode</div>
+          <button class="sidebar-item active" id="sideList" onclick="switchView('list')">📋 Task Board</button>
+          <button class="sidebar-item" id="sideCal" onclick="switchView('cal')">📅 Calendar Plan</button>
+        </div>
+        <div class="sidebar-section" id="sidebarFilterEngine">
+          <div class="sidebar-title">Filters & Sorts</div>
+          <div class="filter-label">Priority Level</div>
+          <select class="filter-sel" id="fPri" onchange="render()">
+            <option value="">All Priorities</option>
+            <option value="High">🔴 High</option>
+            <option value="Medium">🟡 Medium</option>
+            <option value="Low">🟢 Low</option>
+          </select>
+          <div class="filter-label">Status Mode</div>
+          <select class="filter-sel" id="fStat" onchange="render()">
+            <option value="">All Statuses</option>
+            <option value="pending">Pending</option>
+            <option value="completed">Completed</option>
+            <option value="overdue">Overdue</option>
+          </select>
+          <div class="filter-label">Sort Sequence</div>
+          <select class="filter-sel" id="fSort" onchange="render()">
+            <option value="order">Custom Order</option>
+            <option value="date">Due Date</option>
+            <option value="priority">Priority Order</option>
+            <option value="name">A → Z alphabetical</option>
+          </select>
+        </div>
+      </aside>
+
+      <main class="main-content">
+        <!-- APP LIST CONTEXT PANELS -->
+        <div class="view on" id="vList">
+          <div class="panel-header">
+            <div>
+              <div class="panel-title">My Operational Tasks</div>
+              <div class="panel-subtitle" id="taskSubtitle">0 tasks tracked</div>
+            </div>
+          </div>
+          <div class="cat-strip" id="catStrip"></div>
+          <div class="task-list" id="taskStack"></div>
+          <button class="add-task-btn" onclick="openModal()">
+            <span class="plus-icon">+</span> Add operational objective item...
+          </button>
+        </div>
+
+        <!-- APP CALENDAR CONTEXT PANELS -->
+        <div class="view" id="vCal">
+          <div class="panel-header">
+            <div>
+              <div class="panel-title">Calendar Schedule</div>
+              <div class="panel-subtitle">Plan and view parameters inside visual layout grid</div>
+            </div>
+          </div>
+          <div class="calendar">
+            <div class="cal-hdr">
+              <button class="cal-nav" onclick="changeMonth(-1)">‹</button>
+              <h2 class="cal-month-lbl" id="calTitle"></h2>
+              <button class="cal-nav" onclick="changeMonth(1)">›</button>
+            </div>
+            <div class="cal-grid" id="calGrid"></div>
+            <div class="cal-day-panel" id="calPanel" style="display:none"></div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <button class="fab" onclick="openModal()" title="Create New Objective">+</button>
+
+  <!-- COMPLEX CRUD INTERACTIVE MANAGEMENT MODAL -->
+  <div class="overlay" id="modalOv">
+    <div class="modal">
+      <div class="modal-title" id="modalHead">✍️ Add New Task Objective</div>
+      <div class="fgrid">
+        <div class="fg full">
+          <label>Task Parameter Description *</label>
+          <input type="text" id="fT" placeholder="e.g. Complete systems testing array structure..." maxlength="120"/>
+        </div>
+        <div class="fg full">
+          <label>Extended Details (Notes/Markdown)</label>
+          <textarea id="fD" placeholder="Specify optional configurations parameters context..." maxlength="600"></textarea>
+        </div>
+        <div class="fg">
+          <label>📅 Target Finish Date</label>
+          <input type="date" id="fDt"/>
+        </div>
+        <div class="fg">
+          <label>⏰ Deadline Time</label>
+          <input type="time" id="fTm"/>
+        </div>
+        <div class="fg">
+          <label>🚦 Priority Vector</label>
+          <select id="fPr">
+            <option value="High">High Priority Vector</option>
+            <option value="Medium" selected>Medium Priority Vector</option>
+            <option value="Low">Low Priority Vector</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label>🏷️ Context Category Group</label>
+          <select id="fCat"></select>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn btn-secondary" onclick="closeModal()">Abandon Matrix</button>
+        <button class="btn btn-primary" onclick="saveTask()">Commit Objective 🎯</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTEXT CATEGORIES EXPANSION SUBMODAL -->
+  <div class="overlay" id="catOv">
+    <div class="modal" style="max-width:380px">
+      <div class="modal-title">🏷️ Add Custom Category Module</div>
+      <div class="fg">
+        <label>Category Identifier Label</label>
+        <input type="text" id="newCat" placeholder="e.g. Cloud System Configuration..." maxlength="24"/>
+      </div>
+      <div class="modal-foot">
+        <button class="btn btn-secondary" onclick="closeCatOv()">Close</button>
+        <button class="btn btn-primary" onclick="addCat()">Inject Core Category Module 🎨</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SYSTEM AUTOMATION SCRIPT MODULE -->
+  <script>
+    'use strict';
+
+    /* State Matrix Management */
+    let tasks = JSON.parse(localStorage.getItem('dodesk_tasks') || '[]');
+    let cats  = JSON.parse(localStorage.getItem('dodesk_cats') || '["Personal","Work","Study","Health","Shopping"]');
+    let activeCat = 'All';
+    let editId = null;
+    let calM = new Date().getMonth();
+    let calY = new Date().getFullYear();
+    let calSel = null;
+
+    const PRI_RANKS = { High: 0, Medium: 1, Low: 2 };
+    const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    const DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+    const QUOTES = [
+      { text: "The secret of getting ahead is getting started.", author: "Mark Twain", icon: "🚀" },
+      { text: "Done is better than perfect.", author: "Sheryl Sandberg", icon: "✅" },
+      { text: "Focus on being productive instead of busy.", author: "Tim Ferriss", icon: "🎯" },
+      { text: "It always seems impossible until it's done.", author: "Nelson Mandela", icon: "💪" },
+      { text: "One task at a time. One day at a time. One win at a time.", author: "DoDesk Framework", icon: "⚡" }
+    ];
+    let qIdx = Math.floor(Math.random() * QUOTES.length);
+
+    const MOOD_TIERS = [
+      { min: 0, max: 0, msgs: ["✏️ Space clear. Inject new operational task vectors inside the grid!"] },
+      { min: 1, max: 39, msgs: ["🌤️ Good initial velocity. Keep pulling down system operational vectors!"] },
+      { min: 40, max: 79, msgs: ["🔥 High momentum metrics observed! Half of array sets cleared!"] },
+      { min: 80, max: 99, msgs: ["✨ Outstanding progress matrix. Final task clusters remains!"] },
+      { min: 100, max: 100, msgs: ["🥳 Pure optimization achieved! 100% processing loops execution success!"] }
+    ];
+
+    /* Engine Core Utilities */
+    const esc = s => (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    const isOverdue = t => !t.completed && t.date && new Date(t.date + (t.time ? 'T' + t.time : 'T23:59:59')) < new Date();
+    
+    function fmtDate(d) {
+      if (!d) return '';
+      return new Date(d + 'T12:00:00').toLocaleDateString('en-US', { day: '2-digit', month: 'short' });
+    }
+    
+    function fmtTime(t) {
+      if (!t) return '';
+      const [h, m] = t.split(':');
+      return `${+h % 12 || 12}:${m} ${+h < 12 ? 'AM' : 'PM'}`;
+    }
+
+    function persist() {
+      localStorage.setItem('dodesk_tasks', JSON.stringify(tasks));
+      localStorage.setItem('dodesk_cats', JSON.stringify(cats));
+      updateSystemMetrics();
+    }
+
+    /* System Metric Computations Engine */
+    function updateSystemMetrics() {
+      const tot = tasks.length;
+      const done = tasks.filter(t => t.completed).length;
+      const over = tasks.filter(t => isOverdue(t)).length;
+
+      document.getElementById('sTotal').textContent = tot;
+      document.getElementById('sDone').textContent = done;
+      document.getElementById('sPend').textContent = tot - done;
+      document.getElementById('sOver').textContent = over;
+
+      const pct = tot ? Math.round((done / tot) * 100) : 0;
+      document.getElementById('progPct').textContent = pct + '%';
+      document.getElementById('progFill').style.width = pct + '%';
+
+      document.getElementById('taskSubtitle').textContent = `${tasks.length} items logged currently`;
+
+      // Update Dynamic Messages
+      const tier = MOOD_TIERS.find(m => pct >= m.min && pct <= m.max) || MOOD_TIERS[0];
+      document.getElementById('moodMsg').textContent = tier.msgs[Math.floor(Math.random() * tier.msgs.length)];
+    }
+
+    /* Category Navigation Interface Builders */
+    function renderCategoryStrip() {
+      const strip = document.getElementById('catStrip');
+      strip.innerHTML = '';
+      
+      ['All', ...cats].forEach(c => {
+        const btn = document.createElement('button');
+        btn.className = `cat-tab ${activeCat === c ? 'on' : ''}`;
+        btn.textContent = c;
+        btn.onclick = () => { activeCat = c; renderCategoryStrip(); render(); };
+        strip.appendChild(btn);
+      });
+
+      const addBtn = document.createElement('button');
+      addBtn.className = 'cat-tab-add';
+      addBtn.textContent = '＋ Module';
+      addBtn.onclick = () => document.getElementById('catOv').classList.add('on');
+      strip.appendChild(addBtn);
+
+      // Synch Form Option Menus
+      const fCatSelect = document.getElementById('fCat');
+      fCatSelect.innerHTML = cats.map(c => `<option value="${esc(c)}">${esc(c)}</option>`).join('');
+    }
+
+    /* Core Filter & Sorting Task Pipeline Engine */
+    function getFilteredArray() {
+      let result = [...tasks];
+      const searchVal = document.getElementById('searchIn').value.toLowerCase().trim();
+      const priorityVal = document.getElementById('fPri').value;
+      const statusVal = document.getElementById('fStat').value;
+      const sortVal = document.getElementById('fSort').value;
+
+      if (activeCat !== 'All') result = result.filter(t => t.category === activeCat);
+      if (searchVal) result = result.filter(t => (t.title + ' ' + (t.desc || '')).toLowerCase().includes(searchVal));
+      if (priorityVal) result = result.filter(t => t.priority === priorityVal);
+      
+      if (statusVal === 'completed') result = result.filter(t => t.completed);
+      else if (statusVal === 'pending') result = result.filter(t => !t.completed && !isOverdue(t));
+      else if (statusVal === 'overdue') result = result.filter(t => isOverdue(t));
+
+      if (sortVal === 'date') {
+        result.sort((a, b) => new Date(a.date || '9999-12-31') - new Date(b.date || '9999-12-31'));
+      } else if (sortVal === 'priority') {
+        result.sort((a, b) => PRI_RANKS[a.priority] - PRI_RANKS[b.priority]);
+      } else if (sortVal === 'name') {
+        result.sort((a, b) => a.title.localeCompare(b.title));
+      } else {
+        result.sort((a, b) => (a.order || 0) - (b.order || 0));
+      }
+      return result;
+    }
+
+    function render() {
+      const stack = document.getElementById('taskStack');
+      const filtered = getFilteredArray();
+      stack.innerHTML = '';
+
+      if (!filtered.length) {
+        stack.innerHTML = `
+          <div class="empty-state">
+            <span class="empty-emoji">🌈</span>
+            <h3>No Active Matrix Threads Available</h3>
+            <p>Try modifying searching elements parameters configuration fields mapping grid framework layout.</p>
+          </div>`;
+        return;
+      }
+
+      filtered.forEach((t, i) => {
+        const od = isOverdue(t);
+        const card = document.createElement('div');
+        card.className = `task-card ${t.completed ? 'completed' : ''} ${od ? 'is-overdue' : ''}`;
+        card.dataset.id = t.id;
+        card.dataset.p = t.priority;
+        card.draggable = true;
+        card.style.animationDelay = `${i * 0.03}s`;
+
+        card.innerHTML = `
+          <div class="task-check" onclick="toggleTask('${t.id}')">${t.completed ? '✓' : ''}</div>
+          <div class="task-body">
+            <div class="task-title">${esc(t.title)}</div>
+            ${t.desc ? `<div class="task-desc">${esc(t.desc)}</div>` : ''}
+            <div class="task-meta">
+              <span class="badge badge-${t.priority.toLowerCase()}">${t.priority}</span>
+              <span class="badge" style="background: rgba(44,26,14,0.05)">${esc(t.category)}</span>
+              ${t.date ? `<span class="badge badge-date">📅 ${fmtDate(t.date)} ${t.time ? '· ' + fmtTime(t.time) : ''}</span>` : ''}
+              ${od ? `<span class="badge badge-overdue">⚠️ Overdue</span>` : ''}
+            </div>
+          </div>
+          <div class="task-actions">
+            <button class="btn-ico" onclick="openModal('${t.id}')" title="Modify Vector">✏️</button>
+            <button class="btn-ico del" onclick="deleteTask('${t.id}')" title="Erase Vector">🗑️</button>
+          </div>
+          <div class="drag-handle">⠿</div>
+        `;
+
+        /* HTML Drag and Drop Events Wireup */
+        card.addEventListener('dragstart', e => { e.dataTransfer.setData('text/plain', t.id); card.classList.add('dragging'); });
+        card.addEventListener('dragend', () => card.classList.remove('dragging'));
+        card.addEventListener('dragover', e => { e.preventDefault(); card.classList.add('drag-over'); });
+        card.addEventListener('dragleave', () => card.classList.remove('drag-over'));
+        card.addEventListener('drop', e => {
+          e.preventDefault(); card.classList.remove('drag-over');
+          const sourceId = e.dataTransfer.getData('text/plain');
+          const sourceIdx = tasks.findIndex(x => x.id === sourceId);
+          const targetIdx = tasks.findIndex(x => x.id === t.id);
+          if (sourceIdx !== -1 && targetIdx !== -1 && sourceIdx !== targetIdx) {
+            const [moved] = tasks.splice(sourceIdx, 1);
+            tasks.splice(targetIdx, 0, moved);
+            tasks.forEach((item, index) => item.order = index);
+            persist(); render();
+            document.getElementById('fSort').value = 'order';
+          }
+        });
+
+        stack.appendChild(card);
+      });
+    }
+
+    /* CRUD State Actions Operations Hooks */
+    function toggleTask(id) {
+      const t = tasks.find(x => x.id === id);
+      if (t) {
+        t.completed = !t.completed;
+        persist(); render();
+        if (t.completed) {
+          showToast("⚡ Objective Task Vector Finalized!");
+          if (tasks.length > 0 && tasks.every(x => x.completed)) triggerHighFidelityFireworks();
+        }
+      }
+    }
+
+    /* Vector deletion wrapper */
+    function deleteTask(id) {
+      tasks = tasks.filter(x => x.id !== id);
+      persist(); render();
+      showToast("🗑️ Task component removed successfully.");
+    }
+
+    function saveTask() {
+      const titleInput = document.getElementById('fT');
+      const title = titleInput.value.trim();
+      if (!title) { titleInput.style.borderColor = 'var(--coral)'; titleInput.focus(); return; }
+      titleInput.style.borderColor = '';
+
+      const payload = {
+        id: editId || 'tk_' + Math.random().toString(36).slice(2) + Date.now().toString(36),
+        title,
+        desc: document.getElementById('fD').value.trim(),
+        date: document.getElementById('fDt').value,
+        time: document.getElementById('fTm').value,
+        priority: document.getElementById('fPr').value,
+        category: document.getElementById('fCat').value,
+        completed: editId ? tasks.find(x => x.id === editId).completed : false,
+        order: editId ? tasks.find(x => x.id === editId).order : tasks.length
+      };
+
+      if (editId) {
+        const idx = tasks.findIndex(x => x.id === editId);
+        if (idx !== -1) tasks[idx] = payload;
+      } else {
+        tasks.push(payload);
+      }
+      persist(); render(); closeModal();
+      showToast("💾 Changes integrated inside internal database context parameters.");
+    }
+
+    function openModal(id = null) {
+      editId = id;
+      document.getElementById('modalHead').textContent = id ? '✏️ Edit Workspace Objective' : '✍️ Add New Workspace Objective';
+      if (id) {
+        const t = tasks.find(x => x.id === id);
+        document.getElementById('fT').value = t.title;
+        document.getElementById('fD').value = t.desc || '';
+        document.getElementById('fDt').value = t.date || '';
+        document.getElementById('fTm').value = t.time || '';
+        document.getElementById('fPr').value = t.priority;
+        document.getElementById('fCat').value = t.category;
+      } else {
+        document.getElementById('fT').value = ''; document.getElementById('fD').value = '';
+        document.getElementById('fDt').value = new Date().toISOString().split('T')[0]; document.getElementById('fTm').value = '';
+        document.getElementById('fPr').value = 'Medium';
+      }
+      document.getElementById('modalOv').classList.add('on');
+    }
+
+    function closeModal() { document.getElementById('modalOv').classList.remove('on'); editId = null; }
+    function closeCatOv() { document.getElementById('catOv').classList.remove('on'); document.getElementById('newCat').value = ''; }
+    
+    function addCat() {
+      const v = document.getElementById('newCat').value.trim();
+      if (!v) return;
+      if (!cats.includes(v)) { cats.push(v); persist(); renderCategoryStrip(); }
+      closeCatOv();
+    }
+
+    /* Views Framework Flippers Switching Mode Logic */
+    function switchView(mode) {
+      document.getElementById('vList').classList.toggle('on', mode === 'list');
+      document.getElementById('vCal').classList.toggle('on', mode === 'cal');
+      document.getElementById('tabList').classList.toggle('active', mode === 'list');
+      document.getElementById('sideList').classList.toggle('active', mode === 'list');
+      document.getElementById('tabCal').classList.toggle('active', mode === 'cal');
+      document.getElementById('sideCal').classList.toggle('active', mode === 'cal');
+      if (mode === 'cal') renderCalendarEngine();
+    }
+
+    /* Calendar Grid System Core Computation Engine logic */
+    function changeMonth(d) {
+      calM += d;
+      if (calM < 0) { calM = 11; calY--; }
+      if (calM > 11) { calM = 0; calY++; }
+      renderCalendarEngine();
+    }
+
+    function renderCalendarEngine() {
+      document.getElementById('calTitle').textContent = `${MONTHS[calM]} ${calY}`;
+      const grid = document.getElementById('calGrid');
+      grid.innerHTML = '';
+
+      DAYS.forEach(d => {
+        const el = document.createElement('div'); el.className = 'cal-day-hdr'; el.textContent = d; grid.appendChild(el);
+      });
+
+      const firstDay = new Date(calY, calM, 1).getDay();
+      const dMax = new Date(calY, calM + 1, 0).getDate();
+      const prevDMax = new Date(calY, calM, 0).getDate();
+      const today = new Date();
+
+      for (let i = 0; i < firstDay; i++) {
+        const el = document.createElement('div'); el.className = 'cal-cell gray';
+        el.textContent = prevDMax - firstDay + 1 + i; grid.appendChild(el);
+      }
+
+      for (let d = 1; d <= dMax; d++) {
+        const dateString = `${calY}-${String(calM + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+        const matchTasks = tasks.filter(x => x.date === dateString);
+        const isToday = today.getDate() === d && today.getMonth() === calM && today.getFullYear() === calY;
+
+        const cell = document.createElement('div');
+        cell.className = `cal-cell ${isToday ? 'today' : ''} ${matchTasks.length ? 'has' : ''} ${calSel === dateString ? 'sel' : ''}`;
+        cell.textContent = d;
+        cell.onclick = () => { calSel = dateString; renderCalendarEngine(); showCalendarDayPanel(dateString, matchTasks); };
+        grid.appendChild(cell);
+      }
+
+      const rem = 42 - firstDay - dMax;
+      for (let i = 1; i <= rem; i++) {
+        const el = document.createElement('div'); el.className = 'cal-cell gray'; el.textContent = i; grid.appendChild(el);
+      }
+    }
+
+    function showCalendarDayPanel(ds, matched) {
+      const panel = document.getElementById('calPanel');
+      panel.style.display = 'block';
+      panel.innerHTML = `<h3>📅 Metric Framework Schedule For ${fmtDate(ds)} — ${matched.length || 'No'} Objective Vectors Located</h3>`;
+      
+      if (!matched.length) return;
+      matched.forEach(t => {
+        const el = document.createElement('div');
+        el.className = 'task-card';
+        el.style.background = 'var(--warm)';
+        el.innerHTML = `
+          <div class="task-body">
+            <div class="task-title">${esc(t.title)}</div>
+            <div class="task-meta"><span class="badge badge-${t.priority.toLowerCase()}">${t.priority}</span></div>
+          </div>`;
+        panel.appendChild(el);
+      });
+    }
+
+    /* Interface Auxiliary Messaging Utilities logic components */
+    let _toastRef;
+    function showToast(msg) {
+      const el = document.getElementById('toast'); el.textContent = msg; el.className = 'toast show';
+      clearTimeout(_toastRef); _toastRef = setTimeout(() => el.className = 'toast', 2500);
+    }
+
+    function showQuote() {
+      const q = QUOTES[qIdx];
+      document.getElementById('quoteText').textContent = q.text;
+      document.getElementById('quoteAuthor').textContent = '— ' + q.author;
+      document.getElementById('quoteIcon').textContent = q.icon;
+    }
+    function nextQuote() { qIdx = (qIdx + 1) % QUOTES.length; showQuote(); }
+
+    /* HIGH FIDELITY ROCKETS & BURST PARTICLE CELEBRATION PHYSICS ENGINE */
+    function triggerHighFidelityFireworks() {
+      const canvas = document.getElementById('confettiCanvas'); const ctx = canvas.getContext('2d');
+      canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+      const palette = ['#ffcc02','#ff6b6b','#4ecdc4','#74b9ff','#a29bfe','#fd9644'];
+      const rockets = []; const particles = [];
+
+      function createExplosion(x, y, color) {
+        for (let i = 0; i < 60; i++) {
+          const angle = (i / 60) * Math.PI * 2; const speed = Math.random() * 6 + 2;
+          particles.push({
+            x, y, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed,
+            color, alpha: 1, size: Math.random() * 3 + 2, gravity: 0.08
+          });
+        }
+      }
+
+      for(let i=0; i<5; i++) {
+        setTimeout(() => {
+          rockets.push({
+            x: canvas.width * (0.15 + Math.random() * 0.7), y: canvas.height,
+            tx: canvas.width * (0.15 + Math.random() * 0.7), ty: canvas.height * (0.2 + Math.random() * 0.4),
+            speed: 9, color: palette[Math.floor(Math.random()*palette.length)], exploded: false
+          });
+        }, i * 250);
+      }
+
+      let frames = 0;
+      function loop() {
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+        rockets.forEach(r => {
+          if (r.exploded) return;
+          const dy = r.ty - r.y; const dx = r.tx - r.x; const dist = Math.hypot(dx, dy);
+          if (dist < 10) { r.exploded = true; createExplosion(r.x, r.y, r.color); return; }
+          r.x += (dx / dist) * r.speed; r.y += (dy / dist) * r.speed;
+          ctx.fillStyle = r.color; ctx.beginPath(); ctx.arc(r.x, r.y, 4, 0, Math.PI*2); ctx.fill();
+        });
+
+        particles.forEach((p, idx) => {
+          p.x += p.vx; p.y += p.vy; p.vy += p.gravity; p.alpha -= 0.015;
+          if(p.alpha <= 0) { particles.splice(idx, 1); return; }
+          ctx.save(); ctx.globalAlpha = p.alpha; ctx.fillStyle = p.color;
+          ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI*2); ctx.fill(); ctx.restore();
+        });
+
+        frames++;
+        if (frames < 240) requestAnimationFrame(loop);
+        else ctx.clearRect(0,0,canvas.width,canvas.height);
+      }
+      loop();
+      showToast("🏆 Incredible System Optimization Threshold Achieved!");
+    }
+
+    /* Core Initialization Vectors */
+    (function init() {
+      const d = new Date();
+      document.getElementById('moodDate').textContent = d.toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+      renderCategoryStrip();
+      render();
+      showQuote();
+    })();
+  </script>
+</body>
+</html>
